@@ -5,6 +5,12 @@
 
 ## Публикация без MCP
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/FatMAx123/vanna-online-render)
+
+Кнопка открывает настройки публикации, а не уже запущенную игру.
+Проверьте план **Free** перед подтверждением. Для закрытого репозитория
+разрешите приложению Render доступ только к этому репозиторию.
+
 1. Загрузите файлы этого проекта в корень репозитория GitHub.
 2. В Render: New → Blueprint → выберите этот репозиторий.
 3. Проверьте, что создаётся ОДИН Web Service с планом **Free**, затем подтвердите.
