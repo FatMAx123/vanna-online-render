@@ -1,0 +1,19 @@
+{
+  "name": "vanna-online-coop",
+  "version": "0.6.1",
+  "private": true,
+  "description": "Online co-op with automatic matchmaking; Render Free-ready prototype",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node scripts/build-sim.cjs",
+    "start": "node server/server.cjs",
+    "test": "node tests/server.cjs",
+    "test:rules": "node tests/simulation.cjs",
+    "test:browser": "node tests/browser.cjs"
+  },
+  "dependencies": {
+    "ws": "8.18.3"
+  }
+}

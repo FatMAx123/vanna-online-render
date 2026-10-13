@@ -1,0 +1,11 @@
+{
+  "checks": [
+    "Cancel during cold start cancels retry attempts",
+    "Real delayed server start succeeds after >8 seconds; client retries automatically",
+    "Compact base64 grid decodes and both real WebSocket players enter authoritative game",
+    "10Hz Render snapshots support movement and firing without pausing",
+    "Server-generated config supplies correct version and 90-second connection deadline"
+  ],
+  "errors": [],
+  "limitations": "Local simulation of cold startup and Render env. Actual Render deployment and load untested."
+}

@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "All five levels have two valid distinct spawns; online boss uses co-op health",
+    "Both readiness votes advance tally/post-dialog/new level and preserve independent upgrades/lives",
+    "Shared defeat and retry reset both players on the current level",
+    "Authoritative boss completion runs ending, credits, then completes room after both votes"
+  ],
+  "errors": [],
+  "limitations": "State fixtures, not full manual campaign playthrough."
+}

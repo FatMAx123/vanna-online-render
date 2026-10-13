@@ -1,0 +1,22 @@
+{
+  "checks": [
+    "One player waits in queue; server never invents a partner",
+    "Duplicate join does not duplicate queue membership",
+    "FIFO auto-pair assigns distinct authoritative slots",
+    "Two parallel matches are isolated",
+    "When room capacity is full, players stay in queue instead of failing",
+    "Stale phase actions are rejected",
+    "Client can control only assigned player: injected score, lives and coordinates ignored",
+    "Out-of-order input sequence cannot overwrite newer controls",
+    "Missing input automatically neutralizes held movement/fire",
+    "Reconnect bearer token restores the same player and room during grace",
+    "Disconnect timeout ends old room and immediately pairs waiting players",
+    "Explicit leave notifies partner; no forced auto-requeue",
+    "Version mismatch rejected before matchmaking",
+    "Malformed JSON is contained and connection is closed",
+    "Oversized packets rejected by WebSocket maxPayload",
+    "No server exceptions during tests"
+  ],
+  "errors": "",
+  "limitations": "Local test. Guest session tokens are reconnect credentials, NOT verified VK Play identities. No production DDoS, load or moderation test."
+}

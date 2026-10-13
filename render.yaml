@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: vanna-online
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install --omit=dev --ignore-scripts && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeployTrigger: 'off'
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=256
+      - key: HOST
+        value: 0.0.0.0
+      - key: MAX_ROOMS
+        value: "2"
+      - key: MAX_CLIENTS
+        value: "20"
+      - key: MAX_PER_IP
+        value: "20"
+      - key: SNAPSHOT_HZ
+        value: "10"
+      - key: TRUST_PROXY
+        value: "1"

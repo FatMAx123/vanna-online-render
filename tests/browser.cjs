@@ -1,0 +1,36 @@
+const path=require('node:path');
+'use strict';
+const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs');
+const URL='http://127.0.0.1:8085';
+const opts={...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),args:['--no-sandbox','--enable-unsafe-swiftshader']};
+(async()=>{
+ const b1=await chromium.launch(opts),b2=await chromium.launch(opts),a=await b1.newPage({viewport:{width:1280,height:900}}),b=await b2.newPage({viewport:{width:1280,height:900}}),errors=[],checks=[];
+ for(const p of [a,b])p.on('pageerror',e=>errors.push(e.message));
+ await a.goto(URL);await a.screenshot({path:path.resolve(__dirname,'../docs/title.png')});
+ await a.keyboard.press('Digit3');await a.keyboard.press('Enter');await a.waitForFunction(()=>Online.phase==='queued');await a.screenshot({path:path.resolve(__dirname,'../docs/queue.png')});
+ assert.equal(await a.evaluate(()=>state),'online');checks.push('Single player genuinely waits: no bot, auto-start or invitation code');
+ await a.locator('#net-cancel').click();await a.waitForFunction(()=>!Online.active&&state==='title');assert.equal((await (await a.request.get(URL+'/health')).json()).queue,0);checks.push('Cancel removes the waiting player from queue');
+ await a.keyboard.press('Enter');await a.waitForFunction(()=>Online.phase==='queued');
+ await b.goto(URL);await b.keyboard.press('Digit3');await b.keyboard.press('Enter');
+ for(const p of [a,b])await p.waitForFunction(()=>Online.phase==='matched');
+ assert.equal(await a.evaluate(()=>Online.slot),0);assert.equal(await b.evaluate(()=>Online.slot),1);checks.push('Two real browsers automatically match from FIFO queue into 1P and 2P');
+ await a.keyboard.press('Space');await a.waitForTimeout(150);assert.equal(await a.evaluate(()=>Online.ready[0]),true);assert.equal(await b.evaluate(()=>dlg.i),0);await b.keyboard.press('Space');await b.waitForFunction(()=>dlg.i===1);checks.push('Dialogue requires both readiness votes, not one client forcing both');
+ for(const p of [a,b])await p.keyboard.press('Escape');for(const p of [a,b])await p.waitForFunction(()=>state==='dialog'&&dlg.lines.length===3);
+ for(const p of [a,b])await p.keyboard.press('Escape');for(const p of [a,b])await p.waitForFunction(()=>state==='play',null,{timeout:8000});
+ const starts=await a.evaluate(()=>crew.map(c=>({x:c.tank.x,y:c.tank.y})));
+ await a.keyboard.down('KeyW');await a.keyboard.down('Space');await b.keyboard.down('ArrowUp');await b.keyboard.down('Space');await a.waitForTimeout(350);
+ for(const [p,dir] of [[a,'KeyW'],[b,'ArrowUp']]){await p.keyboard.up(dir);await p.keyboard.up('Space');}
+ await a.waitForTimeout(150);const result=await a.evaluate(()=>crew.map(c=>({x:c.tank.x,y:c.tank.y,bul:c.tank.bul})));
+ assert.ok(result[0].y<starts[0].y-10);assert.ok(result[1].y<starts[1].y-10);assert.equal(await a.evaluate(()=>state),'play');checks.push('Each user moves own server-assigned tank and fires with Space without pausing');
+ const one=await a.evaluate(()=>crew.map(c=>[c.tank.x,c.tank.y,c.lives])),two=await b.evaluate(()=>crew.map(c=>[c.tank.x,c.tank.y,c.lives]));assert.deepEqual(one,two);checks.push('Both browsers see the same authoritative position/life state');
+ await a.screenshot({path:path.resolve(__dirname,'../docs/match.png')});
+ await a.keyboard.press('Enter');for(const p of [a,b])await p.waitForFunction(()=>state==='pause');await b.keyboard.press('Enter');await a.waitForTimeout(150);assert.equal(await a.evaluate(()=>state),'pause');await b.keyboard.press('Enter');await a.keyboard.press('Enter');for(const p of [a,b])await p.waitForFunction(()=>state==='play');checks.push('Shared pause cannot be dismissed while the other player still holds a pause');
+ await a.locator('#audio-toggle').click();await a.waitForTimeout(120);assert.equal(await b.evaluate(()=>state),'play');await a.locator('#audio-close').click();checks.push('Opening online settings blocks own controls, not the other user or server');
+ await b.evaluate(()=>Online.away(true));await a.waitForFunction(()=>state==='pause');await b.evaluate(()=>Online.away(false));await a.waitForFunction(()=>state==='play');checks.push('Away/resume clears inputs and synchronizes shared pause');
+ await b.goto('about:blank');await a.waitForFunction(()=>Online.phase==='partner_wait');await a.screenshot({path:path.resolve(__dirname,'../docs/disconnect.png')});await a.waitForFunction(()=>Online.phase==='ended',null,{timeout:25000});checks.push('Disconnect pauses match; grace expires and returns survivor to requeue screen');
+ await a.locator('#net-retry').click();await a.waitForFunction(()=>Online.phase==='queued');checks.push('After losing a partner, survivor can enter queue again without invite');await a.locator('#net-cancel').click();
+ await a.keyboard.press('Digit1');await a.keyboard.press('Enter');await a.waitForFunction(()=>state==='dialog');assert.equal(await a.evaluate(()=>coop),false);checks.push('Offline solo remains playable after online cancellation');
+ await a.keyboard.press('Escape');await a.waitForTimeout(100);await a.keyboard.press('Escape');await a.waitForFunction(()=>state==='play');await a.keyboard.press('Enter');await a.waitForFunction(()=>state==='pause');await a.keyboard.press('Escape');await a.waitForFunction(()=>state==='title');
+ await a.keyboard.press('Digit2');await a.keyboard.press('Enter');await a.waitForFunction(()=>state==='dialog');assert.equal(await a.evaluate(()=>coop),true);assert.equal(await a.evaluate(()=>Online.active),false);checks.push('Local two-player mode remains available separately from online');
+ assert.deepEqual(errors,[]);fs.writeFileSync(path.resolve(__dirname,'../docs/browser-results.json'),JSON.stringify({checks,errors,limitations:'Local Chromium test, not production VK Play. Reconnect unit coverage in server tests. No live deployment, real phones/gamepads, WAN latency/load test or full manual campaign playthrough.'},null,2));console.log({checks:checks.length,errors});await b1.close();await b2.close();
+})().catch(e=>{console.error(e);process.exit(1)});

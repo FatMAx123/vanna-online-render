@@ -1,0 +1,12 @@
+'use strict';
+const vm=require('node:vm'),fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const checks=[],context=vm.createContext({}),source=fs.readFileSync(path.join(__dirname,'../server/sim-source.js'),'utf8');vm.runInContext(source,context);
+const run=s=>vm.runInContext(s,context),snap=()=>JSON.parse(JSON.stringify(context.SIM.snapshot()));
+for(let lvl=0;lvl<5;lvl++){
+ run(`resetCrew();loadLevel(${lvl});setState('play');`);const s=snap();assert.equal(s.crew.length,2);for(const c of s.crew){assert.ok(c.active&&c.tank);assert.equal(c.lives,3);}assert.notEqual(s.crew[0].tank.x,s.crew[1].tank.x);if(lvl===4)assert.equal(s.boss.hp,69);
+}checks.push('All five levels have two valid distinct spawns; online boss uses co-op health');
+run(`resetCrew();loadLevel(0);setState('play');crew[0].stars=2;crew[1].stars=1;crew[0].lives=2;crew[1].lives=1;queue=[];enemies=[];levelEnd=151;updPlay();`);assert.equal(snap().state,'tally');
+run(`action(0,'confirm',epoch);action(1,'confirm',epoch);`);assert.equal(snap().state,'dialog');run(`action(0,'skip',epoch);action(1,'skip',epoch);action(0,'skip',epoch);action(1,'skip',epoch);`);assert.equal(snap().state,'curtain');assert.equal(snap().lvl,1);assert.deepEqual(snap().crew.map(c=>[c.lives,c.stars]),[[2,2],[1,1]]);checks.push('Both readiness votes advance tally/post-dialog/new level and preserve independent upgrades/lives');
+run(`setState('play');destroyBase();for(let i=0;i<151;i++)updPlay();`);assert.equal(snap().state,'gameover');run(`action(0,'confirm',epoch);action(1,'confirm',epoch);action(0,'skip',epoch);action(1,'skip',epoch);`);assert.equal(snap().state,'curtain');assert.deepEqual(snap().crew.map(c=>[c.lives,c.stars]),[[3,0],[3,0]]);checks.push('Shared defeat and retry reset both players on the current level');
+run(`loadLevel(4);setState('play');queue=[];enemies=[];boss.hp=0;bossDie=149;for(let i=0;i<160;i++)if(state==='play')updPlay();`);assert.equal(snap().state,'dialog');run(`action(0,'skip',epoch);action(1,'skip',epoch);`);assert.equal(snap().state,'credits');run(`action(0,'confirm',epoch);action(1,'confirm',epoch);`);assert.equal(context.SIM.done,true);checks.push('Authoritative boss completion runs ending, credits, then completes room after both votes');
+fs.writeFileSync(path.join(__dirname,'../docs/simulation-results.json'),JSON.stringify({checks,errors:[],limitations:'State fixtures, not full manual campaign playthrough.'},null,2));console.log({checks:checks.length,errors:[]});
