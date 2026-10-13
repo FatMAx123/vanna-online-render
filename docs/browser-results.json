@@ -1,0 +1,19 @@
+{
+  "checks": [
+    "Single player genuinely waits: no bot, auto-start or invitation code",
+    "Cancel removes the waiting player from queue",
+    "Two real browsers automatically match from FIFO queue into 1P and 2P",
+    "Both clients automatically enter battle within eight seconds with no confirmation input",
+    "Each user moves own server-assigned tank and fires with Space without pausing",
+    "Both browsers see the same authoritative position/life state",
+    "Shared pause cannot be dismissed while the other player still holds a pause",
+    "Opening online settings blocks own controls, not the other user or server",
+    "Away/resume clears inputs and synchronizes shared pause",
+    "Disconnect pauses match; grace expires and returns survivor to requeue screen",
+    "After losing a partner, survivor can enter queue again without invite",
+    "Offline solo remains playable after online cancellation",
+    "Local two-player mode remains available separately from online"
+  ],
+  "errors": [],
+  "limitations": "Local Chromium test, not production VK Play. Reconnect unit coverage in server tests. No live deployment, real phones/gamepads, WAN latency/load test or full manual campaign playthrough."
+}

@@ -3,4 +3,4 @@
 window.VKPLAY_CONFIG = Object.freeze({ gmrid: null, sdkTimeoutMs: 10000 });
 // Serve web/ from the matchmaking server: leave endpoint empty for same-origin /online.
 // Separate HTTPS hosting: set an explicit wss:// YOUR server /online URL.
-window.ONLINE_CONFIG=Object.freeze({version:'0.6.1',endpoint:'',autoEndpoint:true,connectTimeoutMs:90000});
+window.ONLINE_CONFIG=Object.freeze({version:'0.6.2',endpoint:'',autoEndpoint:true,connectTimeoutMs:90000});

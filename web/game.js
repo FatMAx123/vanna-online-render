@@ -724,9 +724,9 @@ function drawTally(){ctx.fillStyle='#1d1530';ctx.fillRect(0,0,W,H);ctx.drawImage
  txt('УРОВЕНЬ '+(lvl+1)+' ПРОЙДЕН!',W/2,24,['#fff6a8','#ffe14d','#ffd36b','#ffb000','#ff8c1a','#ff5f3a','#ff3b5c'],2,OUT,'center');txt('ОВОЩИ, ПРЕВРАЩЁННЫЕ В ВЫПЕЧКУ:',W/2,50,'#ff9ad5',1,OUT,'center');
  const ks=['cabbage','carrot','onion','pumpkin'];let tot=0;ks.forEach((k,i)=>{const show=st>20+i*30;const y=68+i*30;ctx.drawImage(SPR.en[k][0][1],70,y);txt('>',94,y+5,'#fff');ctx.drawImage(SPR.pastry[ET[k].pastry],106,y);
   if(show){txt(killed[k]+' *'+ET[k].pts,140,y+5,'#fff');txt('= '+(killed[k]*ET[k].pts),210,y+5,'#ffe14d');}tot+=killed[k];});
- if(st>150){txt('ВСЕГО ПИРОЖКОВ: '+tot,W/2,192,'#7ed957',1,OUT,'center');if(Math.floor(st/25)%2)txt('НАЖМИ ENTER',W/2,212,'#fff',1,OUT,'center');}}
+ if(st>150){txt('ВСЕГО ПИРОЖКОВ: '+tot,W/2,192,'#7ed957',1,OUT,'center');if(!window.Online?.active&&Math.floor(st/25)%2)txt('НАЖМИ ENTER',W/2,212,'#fff',1,OUT,'center');}}
 function drawOver(){drawField();ctx.fillStyle='rgba(20,10,40,'+Math.min(0.6,st/100)+')';ctx.fillRect(0,0,W,H);const y=Math.max(80,H-st*1.5);
- txt(baseAlive?(coop?'ВАННЫ ПАЛИ!':'ВАННА ПАЛА!'):'ТОРТ ПАЛ!',W/2,y,['#fff','#ffd1ea','#ff9ad5','#ff6fbf','#ff3b5c','#c42a4a','#8a1a3a'],3,OUT,'center');if(st>120){txt('ИГРА ОКОНЧЕНА',W/2,y+36,'#fff',1,OUT,'center');if(Math.floor(st/25)%2)txt('ENTER - ПРОДОЛЖИТЬ',W/2,y+56,'#ffe14d',1,OUT,'center');}}
+ txt(baseAlive?(coop?'ВАННЫ ПАЛИ!':'ВАННА ПАЛА!'):'ТОРТ ПАЛ!',W/2,y,['#fff','#ffd1ea','#ff9ad5','#ff6fbf','#ff3b5c','#c42a4a','#8a1a3a'],3,OUT,'center');if(st>120){txt('ИГРА ОКОНЧЕНА',W/2,y+36,'#fff',1,OUT,'center');if(!window.Online?.active&&Math.floor(st/25)%2)txt('ENTER - ПРОДОЛЖИТЬ',W/2,y+56,'#ffe14d',1,OUT,'center');}}
 let credY=0;const CRED=['ВАННА ВОЙНЫ','','В РОЛЯХ:','БАБА ЗИНА - САМА СЕБЯ','ДЕД ФЁДОР - ИНЖЕНЕР И УЧЁНЫЙ','БАРОН БРОККОЛИ - ЗЛОДЕЙ НА ПЕНСИИ','КОЧАНЫ, МОРКОВКИ, ЛУК, ТЫКВЫ - ПИРОЖКИ','','ВАННА - ЧУГУН, 1974 Г.','КАРАМЕЛЬКИ - ВЫДАНЫ ПО ТАЛОНАМ','','НИ ОДИН ОВОЩ НЕ ПОСТРАДАЛ.','ВСЕ ОНИ СТАЛИ ВКУСНЕЕ.','','СПАСИБО ЗА ИГРУ!','','КОНЕЦ'];
 function drawCredits(){drawScene('party',st);ctx.fillStyle='rgba(20,10,56,0.55)';ctx.fillRect(0,0,W,H);CRED.forEach((s,i)=>{const y=H+10+i*14-st*0.4;if(y>-10&&y<H)txt(s,W/2,y,i===0||i===CRED.length-1?['#fff6a8','#ffe14d','#ffd36b','#ffb000','#ff8c1a','#ff5f3a','#ff3b5c']:(i===2?'#ff9ad5':'#fff'),i===0||i===CRED.length-1?2:1,OUT,'center');});
  txt('ОЧКИ: '+score,W/2,8,'#ffe14d',1,OUT,'center');}
@@ -741,9 +741,9 @@ function update(){pollGamepads();if(window.Online?.active){window.Online.update(
  case 'credits':st++;if(st>CRED.length*35+700||(st>60&&confirmP())){stopMusic();setState('title');}break;}
  for(const k in pressed)delete pressed[k];}
 function draw(){ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);switch(state){
- case 'online':drawTitle();break;case 'title':drawTitle();break;case 'dialog':if(dlg)drawDialog();break;case 'curtain':drawCurtain();break;case 'play':drawField();break;
+ case 'online':drawTitle();break;case 'title':drawTitle();break;case 'cutscene':window.Online?.drawCutscene();break;case 'dialog':if(dlg)drawDialog();break;case 'curtain':drawCurtain();break;case 'play':drawField();break;
  case 'pause':drawField();ctx.fillStyle='rgba(20,10,40,0.5)';ctx.fillRect(FX,FY,FS,FS);if(Math.floor(st/20)%2)txt('ПАУЗА',FX+FS/2,FY+90,['#fff','#fff','#ffd1ea','#ff9ad5','#ff6fbf','#e04aa8','#c43a8a'],2,OUT,'center');txt(coop?'ЗИНА И ФЁДОР ПЬЮТ ЧАЙ':'БАБУЛЯ ПЬЁТ ЧАЙ',FX+FS/2,FY+116,'#fff',1,OUT,'center');txt('ENTER - ИГРАТЬ  ESC - МЕНЮ',FX+FS/2,FY+134,'#ffe14d',1,OUT,'center');break;
- case 'tally':drawTally();break;case 'gameover':drawOver();break;case 'credits':drawCredits();break;}window.Online?.drawHUD();}
+ case 'tally':drawTally();break;case 'gameover':drawOver();break;case 'credits':if(window.Online?.active)window.Online.drawCredits();else drawCredits();break;}window.Online?.drawHUD();}
 // ====== ЗАПУСК ======
 buildSprites();buildPartnerSprites();buildBackdrops();buildFrame();
 let last=performance.now(),acc=0;function loop(now){if(lifecycleBlocked){last=now;acc=0;draw();window.renderCRT?.(cv);requestAnimationFrame(loop);return;}acc+=Math.min(100,now-last);last=now;while(acc>=1000/60){update();acc-=1000/60;}draw();window.renderCRT?.(cv);requestAnimationFrame(loop);}requestAnimationFrame(loop);

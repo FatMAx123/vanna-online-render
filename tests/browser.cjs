@@ -1,7 +1,7 @@
 const path=require('node:path');
 'use strict';
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs');
-const URL='http://127.0.0.1:8085';
+const URL=process.env.GAME_URL||'http://127.0.0.1:8085';
 const opts={...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),args:['--no-sandbox','--enable-unsafe-swiftshader']};
 (async()=>{
  const b1=await chromium.launch(opts),b2=await chromium.launch(opts),a=await b1.newPage({viewport:{width:1280,height:900}}),b=await b2.newPage({viewport:{width:1280,height:900}}),errors=[],checks=[];
@@ -14,13 +14,12 @@ const opts={...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_P
  await b.goto(URL);await b.keyboard.press('Digit3');await b.keyboard.press('Enter');
  for(const p of [a,b])await p.waitForFunction(()=>Online.phase==='matched');
  assert.equal(await a.evaluate(()=>Online.slot),0);assert.equal(await b.evaluate(()=>Online.slot),1);checks.push('Two real browsers automatically match from FIFO queue into 1P and 2P');
- await a.keyboard.press('Space');await a.waitForTimeout(150);assert.equal(await a.evaluate(()=>Online.ready[0]),true);assert.equal(await b.evaluate(()=>dlg.i),0);await b.keyboard.press('Space');await b.waitForFunction(()=>dlg.i===1);checks.push('Dialogue requires both readiness votes, not one client forcing both');
- for(const p of [a,b])await p.keyboard.press('Escape');for(const p of [a,b])await p.waitForFunction(()=>state==='dialog'&&dlg.lines.length===3);
- for(const p of [a,b])await p.keyboard.press('Escape');for(const p of [a,b])await p.waitForFunction(()=>state==='play',null,{timeout:8000});
+ assert.equal(await a.evaluate(()=>state),'cutscene');await a.screenshot({path:path.resolve(__dirname,'../docs/online-cutscene.png')});
+ for(const p of [a,b])await p.waitForFunction(()=>state==='play',null,{timeout:12000});checks.push('Both clients automatically enter battle within eight seconds with no confirmation input');
  const starts=await a.evaluate(()=>crew.map(c=>({x:c.tank.x,y:c.tank.y})));
  await a.keyboard.down('KeyW');await a.keyboard.down('Space');await b.keyboard.down('ArrowUp');await b.keyboard.down('Space');await a.waitForTimeout(350);
  for(const [p,dir] of [[a,'KeyW'],[b,'ArrowUp']]){await p.keyboard.up(dir);await p.keyboard.up('Space');}
- await a.waitForTimeout(150);const result=await a.evaluate(()=>crew.map(c=>({x:c.tank.x,y:c.tank.y,bul:c.tank.bul})));
+ await a.waitForTimeout(350);const result=await a.evaluate(()=>crew.map(c=>({x:c.tank.x,y:c.tank.y,bul:c.tank.bul})));
  assert.ok(result[0].y<starts[0].y-10);assert.ok(result[1].y<starts[1].y-10);assert.equal(await a.evaluate(()=>state),'play');checks.push('Each user moves own server-assigned tank and fires with Space without pausing');
  const one=await a.evaluate(()=>crew.map(c=>[c.tank.x,c.tank.y,c.lives])),two=await b.evaluate(()=>crew.map(c=>[c.tank.x,c.tank.y,c.lives]));assert.deepEqual(one,two);checks.push('Both browsers see the same authoritative position/life state');
  await a.screenshot({path:path.resolve(__dirname,'../docs/match.png')});

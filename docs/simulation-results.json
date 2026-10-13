@@ -1,10 +1,13 @@
 {
   "checks": [
-    "All five levels have two valid distinct spawns; online boss uses co-op health",
-    "Both readiness votes advance tally/post-dialog/new level and preserve independent upgrades/lives",
-    "Shared defeat and retry reset both players on the current level",
-    "Authoritative boss completion runs ending, credits, then completes room after both votes"
+    "Opening cinematic lasts exactly eight seconds, then enters battle without votes, pre-dialogue or curtain",
+    "Every level has a bounded automatic cinematic and two valid spawns; co-op boss preserved",
+    "Results auto-advance after three seconds; one short transition replaces post+pre dialogue and preserves upgrades/lives",
+    "All four inter-level story transitions complete automatically in five or six seconds",
+    "Either player can skip the shared cinematic alone; stale second skip cannot alter gameplay",
+    "Defeat auto-advances to four-second retry cinematic and restores both players without confirmations",
+    "Boss finale is eight seconds, short credits complete automatically without either user pressing anything"
   ],
   "errors": [],
-  "limitations": "State fixtures, not full manual campaign playthrough."
+  "limitations": "Authoritative state fixtures; not a full manual campaign playthrough."
 }

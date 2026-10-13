@@ -1,5 +1,6 @@
 'use strict';
 const FS=208,FX=16,FY=16,coop=true;let state='title',st=0,epoch=0,dlg=null;
+const CUTS={"intro":{"label":"ДВЕ ВАННЫ. ОДИН ТОРТ.","frames":[{"s":"town","t":"БАРОН БРОККОЛИ ЗАПРЕТИЛ СЛАДКОЕ.","d":150},{"s":"garden","w":"baron","t":"ПОСЛЕДНИЙ ТОРТ БУДЕТ МОИМ!","d":150},{"s":"yard","w":"zina","t":"ФЁДОР, В ВАННУ! ЗАЩИТИМ ТОРТ ВМЕСТЕ.","d":180}]},"pre":[{"label":"КАПУСТНЫЕ ПОЛЯ","frames":[{"s":"garden","w":"cabbage","t":"КОЧАНЫ ИДУТ В АТАКУ!","d":150},{"s":"yard","w":"zina","t":"СЕЙЧАС БУДУТ ПИРОЖКИ.","d":150}]},{"label":"МОРКОВНЫЙ АВТОБАН","frames":[{"s":"garden","w":"carrot","t":"МОРКОВНЫЙ СПЕЦНАЗ НА ВЫЕЗДЕ!","d":150},{"s":"yard","w":"ded","t":"ЗИНА, НЕ РАСПЛЕСКАЙ СИРОП!","d":150}]},{"label":"МОЛОЧНЫЕ РЕКИ","frames":[{"s":"garden","w":"onion","t":"МЫ ЗАСТАВИМ ВАС ПЛАКАТЬ!","d":150},{"s":"yard","w":"zina","t":"ВАННА НЕ ПЛАВАЕТ. ДЕРЖИСЬ БЕРЕГА.","d":150}]},{"label":"ТЫКВЕННАЯ КРЕПОСТЬ","frames":[{"s":"garden","w":"pumpkin","t":"НАША БРОНЯ СЛАДКОЕ НЕ ПРОПУСТИТ!","d":150},{"s":"yard","w":"zina","t":"ЗНАЧИТ, ДОБАВИМ КАРАМЕЛИ.","d":150}]},{"label":"БАРОН БРОККОЛИ","frames":[{"s":"garden","w":"baron","t":"Я САМ ЗАБЕРУ ВАШ ТОРТ!","d":180},{"s":"yard","w":"ded","t":"ДВЕ ВАННЫ ПРОТИВ ОДНОЙ БРОККОЛИ!","d":180}]}],"transitions":[{"label":"УРОВЕНЬ 2 · МОРКОВНЫЙ АВТОБАН","frames":[{"s":"yard","w":"zina","t":"КАПУСТА СТАЛА ПИРОЖКАМИ.","d":150},{"s":"garden","w":"carrot","t":"МОРКОВНЫЙ СПЕЦНАЗ, НА ВЫЕЗД!","d":150}]},{"label":"УРОВЕНЬ 3 · МОЛОЧНЫЕ РЕКИ","frames":[{"s":"yard","w":"zina","t":"МОРКОВНЫЕ КЕКСЫ ГОТОВЫ.","d":150},{"s":"garden","w":"onion","t":"МОЛОЧНАЯ РЕКА ПОД НАШИМ КОНТРОЛЕМ!","d":150}]},{"label":"УРОВЕНЬ 4 · ТЫКВЕННАЯ КРЕПОСТЬ","frames":[{"s":"yard","w":"ded","t":"ЛУКОВЫЕ КОЛЬЦА! ОСТАЛИСЬ ТЫКВЫ.","d":150},{"s":"garden","w":"pumpkin","t":"ПОПРОБУЙТЕ ПРОБИТЬ НАШУ БРОНЮ!","d":150}]},{"label":"ФИНАЛ · БАРОН БРОККОЛИ","frames":[{"s":"yard","w":"zina","t":"ТЫКВЕННЫЙ ПИРОГ ГОТОВ. ГДЕ БАРОН?","d":150},{"s":"garden","w":"baron","t":"Я ЗДЕСЬ! ТОРТ ВСЁ ЕЩЁ БУДЕТ МОИМ!","d":210}]}],"retry":{"label":"ЗАПАСНЫЕ ВАННЫ","frames":[{"s":"yard","w":"zina","t":"ФЁДОР, НЕСИ ЗАПАСНЫЕ ВАННЫ.","d":120},{"s":"yard","w":"ded","t":"И ВТОРОЙ ТОРТ! МЫ ЕЩЁ ПОВОЮЕМ.","d":120}]},"ending":{"label":"ТОРТ СПАСЁН!","frames":[{"s":"garden","w":"baron","t":"Я ПРОСТО ХОТЕЛ КУСОЧЕК...","d":150},{"s":"party","w":"zina","t":"САДИСЬ ЗА СТОЛ. ТОРТА ХВАТИТ ВСЕМ.","d":150},{"s":"party","t":"ДВЕ ВАННЫ СПАСЛИ ПРАЗДНИК. С ДНЁМ РОЖДЕНИЯ, ЗИНА!","d":180}]}};
 const pressed={},controls=[{dir:-1,fire:false},{dir:-1,fire:false}];
 const curDir=id=>controls[id].dir,fireHeld=id=>controls[id].fire;
 const localStorage={getItem:()=>null,setItem:()=>{}};
@@ -7,9 +8,16 @@ let soundId=0,soundEvents=[];
 const SFX=new Proxy({}, {get:(_,name)=>(...args)=>{soundEvents.push({id:++soundId,name,args});if(soundEvents.length>128)soundEvents.shift();}});
 const stopMusic=()=>{},playMusic=()=>{},M_END=0,B_END=0,M_WIN=0,B_WIN=0,M_OVER=0,B_OVER=0;
 function setState(s){state=s;st=0;epoch++;}
-function runDialog(lines,done,scene){dlg={lines,i:0,ch:0,done,scene:scene||lines[0].s||'town',t:0};setState('dialog');}
-function startLevel(i){runDialog(LEVELS[i].pre,()=>{loadLevel(i);setState('curtain');});}
-function nextAfterTally(){runDialog(LEVELS[lvl].post,()=>startLevel(lvl+1));}
+function runCutscene(c,done){
+ dlg={lines:c.frames,label:c.label,i:0,segmentT:0,t:0,total:c.frames.reduce((n,f)=>n+f.d,0),done,scene:c.frames[0].s};
+ for(const id of [0,1])controls[id]={dir:-1,fire:false};setState('cutscene');
+}
+function finishCutscene(){if(!dlg)return;const fn=dlg.done;dlg=null;fn();}
+function runDialog(lines,done){runCutscene(lines===ENDING?CUTS.ending:CUTS.retry,done);}
+function enterBattle(i){loadLevel(i);pauses=[false,false];setState('play');}
+function startLevel(i){runCutscene(CUTS.pre[i],()=>enterBattle(i));}
+function nextAfterTally(){runCutscene(CUTS.transitions[lvl],()=>enterBattle(lvl+1));}
+function retryBattle(){runCutscene(CUTS.retry,()=>{resetCrew();score=Math.floor(score/2);enterBattle(lvl);});}
 // ====== СЮЖЕТ И УРОВНИ ======
 const SPK={zina:{n:'БАБА ЗИНА',c:'#ff6fbf',bg:'#ffe6f4',p:740},baron:{n:'БАРОН БРОККОЛИ',c:'#7ed957',bg:'#1e3a2a',p:180},ded:{n:'ДЕД ФЁДОР',c:'#8fd3ff',bg:'#24406a',p:300},
  cabbage:{n:'КОЧАН-СЕРЖАНТ',c:'#7ed957',bg:'#2a4a2a',p:260},carrot:{n:'МОРКОВЬ-ГОНЩИЦА',c:'#ff8c1a',bg:'#4a2a1a',p:520},onion:{n:'ЛУК-ПЛАКСА',c:'#c06ae0',bg:'#3a1a4a',p:420},
@@ -245,50 +253,41 @@ function updPlay(){frame++;
   if(LEVELS[lvl].boss){runDialog(ENDING,()=>{setState('credits');playMusic(M_END,B_END,0.2,true);},'party');playMusic(M_END,B_END,0.2,true);}else{setState('tally');playMusic(M_WIN,B_WIN,0.12,false);}}
  if(overT&&++overT>150){stopMusic();setState('gameover');playMusic(M_OVER,B_OVER,0.25,false);}
  if(pressed.Enter||pressed.KeyP){setState('pause');}}
-const INTRO_COOP=[...INTRO.slice(0,-1),
- {s:'yard',w:'ded',t:'Я ТОЖЕ ЕДУ! НАШЁЛ ВТОРУЮ ВАННУ НА ДАЧЕ. У НЕЁ ПРОБЕГ - ТРИ ВЕДРА.'},
- {s:'yard',w:'zina',t:'ДЕРЖИСЬ СПРАВА, ФЁДОР. И НЕ ПУТАЙ КАРАМЕЛЬ С ТАБЛЕТКАМИ ОТ ДАВЛЕНИЯ.'},
- {s:'yard',t:'ДВЕ ВАННЫ. ОДИН ТОРТ. НОЛЬ САНТЕХНИКОВ. ЗАЩИТИТЕ ТОРТ ВМЕСТЕ.'}
-];
 
-let ready=[false,false],skip=[false,false],pauses=[false,false],done=false;
-function resetVotes(){ready=[false,false];skip=[false,false];}
-function advance(){
- if(state==='dialog'&&dlg){
-  if(skip.every(Boolean)){const fn=dlg.done;dlg=null;resetVotes();fn();return;}
-  dlg.i++;dlg.ch=0;epoch++;resetVotes();if(dlg.i>=dlg.lines.length){const fn=dlg.done;dlg=null;fn();}
- }else if(state==='tally'){resetVotes();nextAfterTally();}
- else if(state==='gameover'){resetVotes();runDialog(GAMEOVER_DLG,()=>{resetCrew();score=Math.floor(score/2);loadLevel(lvl);setState('curtain');});}
- else if(state==='credits'){done=true;}
-}
+let ready=[false,false],pauses=[false,false],done=false;
 function action(id,a,e){
  if(e!==epoch)return;
  if(a==='help'&&state==='play'){pressed.KeyR=true;return;}
  if(a==='pause'&&(state==='play'||state==='pause')){setPaused(id,!pauses[id]);return;}
- if(!['confirm','skip'].includes(a)||!['dialog','tally','gameover','credits'].includes(state))return;
- ready[id]=true;skip[id]=a==='skip';if(ready.every(Boolean))advance();
+ // One player's skip advances the same server-controlled scene for BOTH clients.
+ if((a==='skip'||a==='confirm')&&state==='cutscene'){finishCutscene();return;}
+ if((a==='skip'||a==='confirm')&&state==='credits'){done=true;}
 }
 function setPaused(id,value){
- controls[id]={dir:-1,fire:false};
- if(state!=='play'&&state!=='pause')return;
+ controls[id]={dir:-1,fire:false};if(state!=='play'&&state!=='pause')return;
  pauses[id]=!!value;if(pauses.some(Boolean)&&state==='play')setState('pause');
  else if(!pauses.some(Boolean)&&state==='pause')setState('play');
 }
 function input(id,c){controls[id]={dir:c.dir,fire:c.fire};}
 function tick(){
  if(done)return;
- if(state==='dialog'){dlg.t++;dlg.ch=Math.min(dlg.lines[dlg.i].t.length,dlg.ch+0.8);}
- else if(state==='curtain'){st++;frame++;if(st>=150)setState('play');}
- else if(state==='play')updPlay();else st++;
+ if(state==='cutscene'){
+  dlg.t++;dlg.segmentT++;
+  if(dlg.segmentT>=dlg.lines[dlg.i].d){dlg.i++;dlg.segmentT=0;if(dlg.i>=dlg.lines.length)finishCutscene();}
+ }else if(state==='play')updPlay();
+ else if(state==='tally'){if(++st>=180)nextAfterTally();}
+ else if(state==='gameover'){if(++st>=150)retryBattle();}
+ else if(state==='credits'){if(++st>=180)done=true;}
+ else st++;
  for(const k in pressed)delete pressed[k];
 }
 function snapshot(){
  return {state,st,epoch,lvl,score,hiscore,frame,G:Array.from(G),crew,enemies,
  bullets:bullets.map(({from,...b})=>b),parts,floats,pastries,powerups,queue,
  freeze,panT,baseAlive,levelEnd,boss,killed,overT,bossDie,shake,
- dlg:dlg?{lines:dlg.lines,i:dlg.i,ch:dlg.ch,scene:dlg.scene,t:dlg.t}:null,
+ dlg:dlg?{lines:dlg.lines,label:dlg.label,i:dlg.i,segmentT:dlg.segmentT,scene:dlg.scene,t:dlg.t,total:dlg.total}:null,
  ready,pauses,done,sounds:soundEvents};
 }
-// IDs are assigned by the server, never by client packets.
-score=0;resetCrew();runDialog(INTRO_COOP,()=>startLevel(0));
+// No long prologue, pre-level dialogue or curtain after the opening cinematic.
+score=0;resetCrew();runCutscene(CUTS.intro,()=>enterBattle(0));
 globalThis.SIM={tick,snapshot,input,action,setPaused,get done(){return done;},get state(){return state;}};

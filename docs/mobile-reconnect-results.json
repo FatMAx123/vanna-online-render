@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "Mobile client matched as 2P without any invitation",
+    "Online mobile uses a single personal D-pad, not local-coop double controls",
+    "Two-finger movement/shooting controls server slot 2, not slot 1, without pausing",
+    "Real browser socket drop auto-reconnects and restores existing slot/match",
+    "Landscape phone controls do not overlap game screen",
+    "Queue cancel button fits the phone screen"
+  ],
+  "errors": [],
+  "limitations": "Emulated mobile in Chromium; physical device, WAN and real VK Play are untested."
+}

@@ -1,6 +1,6 @@
 {
   "name": "vanna-online-coop",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "private": true,
   "description": "Online co-op with automatic matchmaking; Render Free-ready prototype",
   "engines": {

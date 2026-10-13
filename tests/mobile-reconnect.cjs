@@ -1,16 +1,17 @@
 const path=require('node:path');
 const {chromium}=require('playwright'),WebSocket=require('ws'),assert=require('node:assert/strict'),fs=require('node:fs');
+const BASE=process.env.GAME_URL||'http://127.0.0.1:8085';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 (async()=>{
  const browser=await chromium.launch({...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),args:['--no-sandbox','--enable-unsafe-swiftshader']});
  const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),errors=[],checks=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{const Original=window.WebSocket;window.WebSocket=class extends Original{constructor(...args){super(...args);window.__testSocket=this;}};});
- const other=new WebSocket('ws://127.0.0.1:8085/online');let seen,matched=false;
- other.on('message',d=>{const m=JSON.parse(d);if(m.type==='welcome')other.send(JSON.stringify({type:'join'}));if(m.type==='matched')matched=true;if(m.type==='snapshot'){seen=m;const s=m.data;if(s.state==='dialog'&&s.ready[1])other.send(JSON.stringify({type:'action',action:'skip',epoch:s.epoch}));}});
- await new Promise(r=>other.once('open',r));other.send(JSON.stringify({type:'hello',version:'0.6.1'}));await sleep(80);
- await page.goto('http://127.0.0.1:8085/');await page.evaluate(()=>{selectMode(2);newRun();});await page.waitForFunction(()=>Online.phase==='matched'&&Online.slot===1);assert.ok(matched);checks.push('Mobile client matched as 2P without any invitation');
+ const other=new WebSocket(BASE.replace(/^http/,'ws')+'/online');let seen,matched=false;
+ other.on('message',d=>{const m=JSON.parse(d);if(m.type==='welcome')other.send(JSON.stringify({type:'join'}));if(m.type==='matched')matched=true;if(m.type==='snapshot'){seen=m;const s=m.data;}});
+ await new Promise(r=>other.once('open',r));other.send(JSON.stringify({type:'hello',version:'0.6.2'}));await sleep(80);
+ await page.goto(BASE+'/');await page.evaluate(()=>{selectMode(2);newRun();});await page.waitForFunction(()=>Online.phase==='matched'&&Online.slot===1);assert.ok(matched);checks.push('Mobile client matched as 2P without any invitation');
  assert.equal(await page.locator('#pad').isVisible(),true);assert.equal(await page.locator('#coop-pad').isVisible(),false);checks.push('Online mobile uses a single personal D-pad, not local-coop double controls');
- await page.keyboard.press('Escape');await page.waitForFunction(()=>state==='dialog'&&dlg.lines.length===3);await page.keyboard.press('Escape');await page.waitForFunction(()=>state==='play');
+ await page.waitForFunction(()=>state==='cutscene');await page.locator('#pad .start').tap();await page.waitForFunction(()=>state==='play');
  const before=await page.evaluate(()=>crew.map(c=>c.tank.y));const cdp=await page.context().newCDPSession(page);
  const up=await page.locator('#pad .up').boundingBox(),fire=await page.locator('#pad .fire').boundingBox();
  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x:up.x+up.width/2,y:up.y+up.height/2},{id:2,x:fire.x+fire.width/2,y:fire.y+fire.height/2}]});await sleep(350);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await sleep(120);

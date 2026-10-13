@@ -1,7 +1,7 @@
 'use strict';
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {WebSocketServer,WebSocket}=require('ws'),createSimulation=require('./simulation.cjs');
-const VERSION='0.6.1',ROOT=path.resolve(__dirname,'../web');
+const VERSION='0.6.2',ROOT=path.resolve(__dirname,'../web');
 const PORT=Number(process.env.PORT||8080),HOST=process.env.HOST||'0.0.0.0';
 const MAX_ROOMS=Number(process.env.MAX_ROOMS||40),MAX_CLIENTS=Number(process.env.MAX_CLIENTS||200);
 const MAX_PER_IP=Number(process.env.MAX_PER_IP||12);
