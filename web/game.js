@@ -1,5 +1,5 @@
 'use strict';
-// ====== ВАННА ВОЙНЫ: БАБУЛЯ ПРОТИВ БРОККОЛИ ======
+// ====== БАТЛ ГРЭННИ: БАБУЛЯ ПРОТИВ БРОККОЛИ ======
 const W=320,H=240,FX=16,FY=16,FS=208;
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;
 function resize(){
@@ -334,7 +334,7 @@ const INTRO=[
  {s:'yard',w:'ded',t:'УЧЕНЫЕ ДОКАЗАЛИ: ОВОЩИ ОТ САХАРА ПРЕВРАЩАЮТСЯ В ВЫПЕЧКУ. ОДНА КАРАМЕЛЬКА - И КАПУСТА СТАНЕТ ПИРОЖКОМ!'},
  {s:'yard',w:'zina',t:'КАКИЕ ЕЩЁ УЧЁНЫЕ?'},
  {s:'yard',w:'ded',t:'Я. ВЧЕРА. НА КУХНЕ. НЕ СПРАШИВАЙ.'},
- {s:'yard',t:'ТАК НАЧАЛАСЬ ВАННА ВОЙНЫ. ЗАЩИТИ ТОРТ. ПРЕВРАТИ ОВОЩИ В ПИРОЖКИ. НЕ РАСПЛЕСКАЙ ВОДУ.'},
+ {s:'yard',t:'ТАК НАЧАЛАСЬ БИТВА ЗА СЛАДКОЕ. ЗАЩИТИ ТОРТ. ПРЕВРАТИ ОВОЩИ В ПИРОЖКИ. НЕ РАСПЛЕСКАЙ ВОДУ.'},
 ];
 const ROWS=[
 `.............
@@ -706,7 +706,7 @@ function startLevel(i){runDialog(LEVELS[i].pre,()=>{loadLevel(i);setState('curta
 function nextAfterTally(){runDialog(LEVELS[lvl].post.length?LEVELS[lvl].post:[{t:'...'}],()=>{startLevel(lvl+1);});}
 function drawTitle(){ctx.drawImage(BG.party,0,-20,W,H+20);ctx.fillStyle='rgba(20,10,56,0.35)';ctx.fillRect(0,0,W,H);
  const grad=['#fff6a8','#ffe14d','#ffd36b','#ffb000','#ff8c1a','#ff5f3a','#ff3b5c'];const bob=Math.round(Math.sin(st*0.06)*2);
- txt('ВАННА',W/2,24+bob,grad,4,OUT,'center');txt('ВОЙНЫ',W/2,58+bob,grad,4,OUT,'center');
+ txt('БАТЛ',W/2,24+bob,grad,4,OUT,'center');txt('ГРЭННИ',W/2,58+bob,grad,4,OUT,'center');
  txt('БАБУЛЯ ПРОТИВ БРОККОЛИ',W/2,94,['#ffd1ea','#ffb3dc','#ff9ad5','#ff6fbf','#ff6fbf','#e04aa8','#c43a8a'],1,OUT,'center');
  const tx=30+((st*0.5)%40);ctx.drawImage(SPR.tub[0][Math.floor(st/6)%2][1],coop?30:40,118,coop?40:48,coop?40:48);if(coop)ctx.drawImage(SPR.tub2[0][Math.floor(st/6)%2][1],80,118,40,40);
  for(let i=0;i<4;i++){const x=92+((st*2+i*45)%150);ctx.drawImage(SPR.candy[i][0],x,138);}
@@ -727,7 +727,7 @@ function drawTally(){ctx.fillStyle='#1d1530';ctx.fillRect(0,0,W,H);ctx.drawImage
  if(st>150){txt('ВСЕГО ПИРОЖКОВ: '+tot,W/2,192,'#7ed957',1,OUT,'center');if(!window.Online?.active&&Math.floor(st/25)%2)txt('НАЖМИ ENTER',W/2,212,'#fff',1,OUT,'center');}}
 function drawOver(){drawField();ctx.fillStyle='rgba(20,10,40,'+Math.min(0.6,st/100)+')';ctx.fillRect(0,0,W,H);const y=Math.max(80,H-st*1.5);
  txt(baseAlive?(coop?'ВАННЫ ПАЛИ!':'ВАННА ПАЛА!'):'ТОРТ ПАЛ!',W/2,y,['#fff','#ffd1ea','#ff9ad5','#ff6fbf','#ff3b5c','#c42a4a','#8a1a3a'],3,OUT,'center');if(st>120){txt('ИГРА ОКОНЧЕНА',W/2,y+36,'#fff',1,OUT,'center');if(!window.Online?.active&&Math.floor(st/25)%2)txt('ENTER - ПРОДОЛЖИТЬ',W/2,y+56,'#ffe14d',1,OUT,'center');}}
-let credY=0;const CRED=['ВАННА ВОЙНЫ','','В РОЛЯХ:','БАБА ЗИНА - САМА СЕБЯ','ДЕД ФЁДОР - ИНЖЕНЕР И УЧЁНЫЙ','БАРОН БРОККОЛИ - ЗЛОДЕЙ НА ПЕНСИИ','КОЧАНЫ, МОРКОВКИ, ЛУК, ТЫКВЫ - ПИРОЖКИ','','ВАННА - ЧУГУН, 1974 Г.','КАРАМЕЛЬКИ - ВЫДАНЫ ПО ТАЛОНАМ','','НИ ОДИН ОВОЩ НЕ ПОСТРАДАЛ.','ВСЕ ОНИ СТАЛИ ВКУСНЕЕ.','','СПАСИБО ЗА ИГРУ!','','КОНЕЦ'];
+let credY=0;const CRED=['БАТЛ ГРЭННИ','','В РОЛЯХ:','БАБА ЗИНА - САМА СЕБЯ','ДЕД ФЁДОР - ИНЖЕНЕР И УЧЁНЫЙ','БАРОН БРОККОЛИ - ЗЛОДЕЙ НА ПЕНСИИ','КОЧАНЫ, МОРКОВКИ, ЛУК, ТЫКВЫ - ПИРОЖКИ','','ВАННА - ЧУГУН, 1974 Г.','КАРАМЕЛЬКИ - ВЫДАНЫ ПО ТАЛОНАМ','','НИ ОДИН ОВОЩ НЕ ПОСТРАДАЛ.','ВСЕ ОНИ СТАЛИ ВКУСНЕЕ.','','СПАСИБО ЗА ИГРУ!','','КОНЕЦ'];
 function drawCredits(){drawScene('party',st);ctx.fillStyle='rgba(20,10,56,0.55)';ctx.fillRect(0,0,W,H);CRED.forEach((s,i)=>{const y=H+10+i*14-st*0.4;if(y>-10&&y<H)txt(s,W/2,y,i===0||i===CRED.length-1?['#fff6a8','#ffe14d','#ffd36b','#ffb000','#ff8c1a','#ff5f3a','#ff3b5c']:(i===2?'#ff9ad5':'#fff'),i===0||i===CRED.length-1?2:1,OUT,'center');});
  txt('ОЧКИ: '+score,W/2,8,'#ffe14d',1,OUT,'center');}
 function update(){pollGamepads();if(window.Online?.active){window.Online.update();if(state!=='pause')musicTick();for(const k in pressed)delete pressed[k];return;}if(state!=='pause')musicTick();if(!audioPanel.hidden){if(state==='title'&&!music&&AC)playMusic(M_TITLE);for(const k in pressed)delete pressed[k];return;}switch(state){
