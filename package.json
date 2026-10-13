@@ -11,7 +11,8 @@
     "start": "node server/server.cjs",
     "test": "node tests/server.cjs",
     "test:rules": "node tests/simulation.cjs",
-    "test:browser": "node tests/browser.cjs"
+    "test:browser": "node tests/browser.cjs",
+    "test:platform": "node tests/platform.cjs"
   },
   "dependencies": {
     "ws": "8.18.3"

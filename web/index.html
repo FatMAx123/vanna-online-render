@@ -4,12 +4,12 @@
 <meta name="theme-color" content="#0d0820">
 <meta name="description" content="Баба Зина на боевой ванне защищает праздничный торт от армии овощей. Пять уровней, карамельные снаряды и Барон Брокколи.">
 <title>Батл Грэнни — Бабуля против Брокколи</title><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css">
-<script defer src="config.js"></script><script defer src="audio.js"></script><script defer src="game.js"></script><script defer src="online.js"></script><script defer src="crt.js"></script><script defer src="vkplay.js"></script>
+<script defer src="config.js"></script><script defer src="vendor/vk-bridge-3.0.2.min.js"></script><script defer src="platform.js"></script><script defer src="audio.js"></script><script defer src="game.js"></script><script defer src="online.js"></script><script defer src="crt.js"></script>
 </head><body>
 
 <section id="audio-panel" aria-label="Настройки звука" hidden>
 <div class="audio-heading"><strong>НАСТРОЙКИ ТЕЛЕВИЗОРА</strong><button id="audio-close" aria-label="Закрыть настройки звука">X</button></div>
-<div class="settings-actions"><button id="fullscreen">ВЕСЬ ЭКРАН</button><button id="crt-toggle" aria-pressed="true">ЭЛТ: ВКЛ</button><button id="pause">ПАУЗА / ИГРАТЬ</button><button id="share-life">ПОМОЧЬ НАПАРНИКУ</button><button id="net-leave" hidden>ВЫЙТИ ИЗ МАТЧА</button><button id="vk-account" hidden>ВХОД VK PLAY</button></div>
+<div class="settings-actions"><button id="fullscreen">ВЕСЬ ЭКРАН</button><button id="crt-toggle" aria-pressed="true">ЭЛТ: ВКЛ</button><button id="pause">ПАУЗА / ИГРАТЬ</button><button id="share-life">ПОМОЧЬ НАПАРНИКУ</button><button id="net-leave" hidden>ВЫЙТИ ИЗ МАТЧА</button><button id="vk-account" hidden>СТАТУС ВК / ОК</button></div>
 <label for="music-volume">Музыка <output id="music-value" for="music-volume">30%</output></label><input id="music-volume" type="range" min="0" max="100" step="1" value="30">
 <label for="sfx-volume">Эффекты <output id="sfx-value" for="sfx-volume">55%</output></label><input id="sfx-volume" type="range" min="0" max="100" step="1" value="55">
 <label for="music-mode">Музыка в игре</label><select id="music-mode"><option value="calm">Новый саундтрек</option><option value="cues">Заставки и сигналы</option><option value="off">Без музыки</option></select>

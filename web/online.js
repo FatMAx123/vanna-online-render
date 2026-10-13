@@ -80,7 +80,7 @@
   crew=s.crew.map(c=>({...c,tank:c.tank?{...c.tank}:null}));enemies=s.enemies.map(e=>({...e}));bullets=s.bullets.map(b=>({...b}));boss=s.boss?{...s.boss}:null;
   parts=s.parts;floats=s.floats;pastries=s.pastries;powerups=s.powerups;queue=s.queue;freeze=s.freeze;panT=s.panT;baseAlive=s.baseAlive;levelEnd=s.levelEnd;killed=s.killed;overT=s.overT;bossDie=s.bossDie;shake=s.shake;dlg=s.dlg;
   musicFor(state,oldState);for(const ev of s.sounds){if(ev.id<=lastSound)continue;lastSound=ev.id;if(typeof SFX[ev.name]==='function')SFX[ev.name](...(ev.args||[]));}
-  if(s.score>0){try{localStorage.setItem('vanna_hi_online',String(Math.max(s.score,+localStorage.getItem('vanna_hi_online')||0)));}catch{}}
+  if(s.score>0){try{localStorage.setItem((window.Platform?.storageKey('vanna_hi_online')||'vanna_hi_online'),String(Math.max(s.score,+localStorage.getItem((window.Platform?.storageKey('vanna_hi_online')||'vanna_hi_online'))||0)));}catch{}}
  }
  function direction(){if(touchDirs[0]>=0)return touchDirs[0];const map={...MAP_WASD,...MAP_ARROWS};for(let i=keyOrder.length-1;i>=0;i--)if(keys[keyOrder[i]]&&keyOrder[i] in map)return map[keyOrder[i]];return padInput[0]?.dir??-1;}
  function action(a){if(phase==='matched')send({type:'action',action:a,epoch});}

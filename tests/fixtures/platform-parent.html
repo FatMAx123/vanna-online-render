@@ -1,0 +1,5 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body><script>
+window.events=[];const q=new URLSearchParams(location.search);
+addEventListener('message',e=>{if(e.data?.type!=='vk-connect')return;events.push(e.data.handler);if(q.get('mode')==='timeout')return;if(e.data.handler==='VKWebAppInit')e.source.postMessage({type:q.get('mode')==='reject'?'VKWebAppInitFailed':'VKWebAppInitResult',data:{request_id:e.data.params.request_id,result:q.get('mode')!=='reject',...(q.get('mode')==='reject'?{error_type:'client_error'}:{})}},e.origin);});
+const f=document.createElement('iframe');f.style='width:1200px;height:750px;border:0';f.src='/index.html?vk_app_id='+(q.get('client')==='ok'?'999999':'54821348')+'&vk_client='+(q.get('client')||'vk');document.body.append(f);
+</script></body></html>

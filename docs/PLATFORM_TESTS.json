@@ -1,0 +1,26 @@
+{
+  "passed": 20,
+  "checks": [
+    "vk initializes real SDK",
+    "vk Init exactly once",
+    "vk separate score namespace",
+    "vk native hide pauses game",
+    "vk restore clears lifecycle block",
+    "vk no page errors",
+    "ok initializes real SDK",
+    "ok Init exactly once",
+    "ok separate score namespace",
+    "ok native hide pauses game",
+    "ok restore clears lifecycle block",
+    "ok no page errors",
+    "Standalone keeps legacy record keys",
+    "Standalone makes no platform handshake",
+    "reject shown honestly",
+    "reject no repeated Init",
+    "reject game remains available",
+    "timeout shown honestly",
+    "timeout no repeated Init",
+    "timeout game remains available"
+  ],
+  "scope": "Real SDK + mock platform parents; not real VK/OK deployment"
+}

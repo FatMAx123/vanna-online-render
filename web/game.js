@@ -497,7 +497,7 @@ const POWERS={star:'КАРАМЕЛЬ+',bomb:'ТОРТ-БОМБА!',shield:'БИ�
 const G=new Uint8Array(52*52);
 let lvl=0,score=0,hiscore=0,enemies=[],bullets=[],parts=[],floats=[],pastries=[],powerups=[];
 let crew=[];
-function scoreKey(){return coop?'vanna_hi_2p':'vanna_hi';}
+function scoreKey(){const key=coop?'vanna_hi_2p':'vanna_hi';return typeof window!=='undefined'&&window.Platform?window.Platform.storageKey(key):key;}
 function readRecord(){try{hiscore=+localStorage.getItem(scoreKey())||0;}catch(e){hiscore=0;}}
 function resetCrew(){crew=[0,1].map(id=>({id,name:id?'ФЁДОР':'ЗИНА',color:id?'#8fe9f1':'#ff9ad5',active:id===0||coop,lives:3,stars:0,tank:null,respawnT:0}));}
 function livingTanks(){return crew.filter(s=>s.active&&s.tank).map(s=>s.tank);}
